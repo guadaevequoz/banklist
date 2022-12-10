@@ -73,20 +73,61 @@ const displayMovements = (movements) => {
   movements.forEach((mov, i) => {
     
     const type = mov > 0 ? 'deposit' : 'withdrawal';
-
     const html = `
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-      <div class="movements__value">${mov}</div>
+      <div class="movements__value">$${mov}</div>
     </div>
     `;
-    
     containerMovements.insertAdjacentHTML('afterbegin', html);
 
   });
 }
 
 displayMovements(account1.movements);
+
+/**
+ * Función para obtener el balance de la cuenta
+ * acc es el acumulador y mov el movimiento
+ * @param {*} movements 
+ */
+ const calcPrintBalance = (movements) => {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `$${balance}`;
+}
+
+calcPrintBalance(account1.movements);
+
+/**
+ * 
+ */
+const calcDisplaySummary = (movements) => {
+  const incomes = movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov);
+  labelSumIn.textContent = `$${incomes}`;
+
+  const outcomes = movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov);
+  labelSumOut.textContent = `$${Math.abs(outcomes)}`;
+
+  const interest = movements.filter(mov => mov > 0).map(mov => mov * 1.2/100).filter(mov => mov >= 1).reduce((acc, mov) => acc + mov);
+  labelSumInterest.textContent = `$${interest}`;
+
+}
+
+calcDisplaySummary(account1.movements);
+
+/**
+ * Función para crear los nombres de usuarios
+ * @param {*} accs 
+ */
+const createUsernames = (accs) => {
+  accs.forEach(acc => {
+    acc.username = acc.owner.toLowerCase().split(' ').map((name) =>  name[0]).join('')
+  })
+}
+
+createUsernames(accounts);
+
+
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
