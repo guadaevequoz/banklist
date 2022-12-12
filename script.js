@@ -66,11 +66,13 @@ const inputClosePin = document.querySelector('.form__input--pin');
  * Funcion que permite mostrar los movimientos (array) de un usuario (de ultimos a primeros)
  * @param {*} movements 
  */
-const displayMovements = (movements) => {
+const displayMovements = (movements, sort = false) => {
 
   containerMovements.innerHTML = ''; 
 
-  movements.forEach((mov, i) => {
+  const movs = sort ? movements.slice().sort((a,b) => a - b ) : movements;
+
+  movs.forEach((mov, i) => {
     
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     const html = `
@@ -170,7 +172,18 @@ btnTransfer.addEventListener('click', (e) => {
     inputTransferAmount.value = inputTransferTo.value = "";
     inputTransferTo.blur();
   }
-})
+});
+
+btnLoan.addEventListener('click', (e) => {
+  e.preventDefault();
+  const amount = Number(inputLoanAmount.value);
+
+  if(amount > 0 && currentAccount.movements.some(m => m >= amount / 10 )){
+    currentAccount.movements.push(amount);
+    updateUI(currentAccount);
+    inputLoanAmount.value = '';
+  }
+});
 
 btnClose.addEventListener('click', (e) => {
   e.preventDefault();
@@ -185,9 +198,14 @@ btnClose.addEventListener('click', (e) => {
     containerApp.style.opacity = 0;
     inputCloseUsername.value = inputClosePin.value = "";
   }
+});
 
-  
-})
+let sorted = false;
+btnSort.addEventListener('click', (e) => {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -202,4 +220,3 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
-
