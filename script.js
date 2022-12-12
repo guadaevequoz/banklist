@@ -84,8 +84,6 @@ const displayMovements = (movements) => {
   });
 }
 
-displayMovements(account1.movements);
-
 /**
  * Función para obtener el balance de la cuenta
  * acc es el acumulador y mov el movimiento
@@ -96,24 +94,22 @@ displayMovements(account1.movements);
   labelBalance.textContent = `$${balance}`;
 }
 
-calcPrintBalance(account1.movements);
 
 /**
- * 
+ * Funcion para obtener los resumenes de todo
  */
-const calcDisplaySummary = (movements) => {
-  const incomes = movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov);
+const calcDisplaySummary = (acc) => {
+  const incomes = acc.movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov);
   labelSumIn.textContent = `$${incomes}`;
 
-  const outcomes = movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov);
+  const outcomes = acc.movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov);
   labelSumOut.textContent = `$${Math.abs(outcomes)}`;
 
-  const interest = movements.filter(mov => mov > 0).map(mov => mov * 1.2/100).filter(mov => mov >= 1).reduce((acc, mov) => acc + mov);
+  const interest = acc.movements.filter(mov => mov > 0).map(mov => mov * acc.interestRate/100).filter(mov => mov >= 1).reduce((acc, mov) => acc + mov);
   labelSumInterest.textContent = `$${interest}`;
 
 }
 
-calcDisplaySummary(account1.movements);
 
 /**
  * Función para crear los nombres de usuarios
@@ -127,7 +123,29 @@ const createUsernames = (accs) => {
 
 createUsernames(accounts);
 
+// Event handlers
+let currentAccount;
 
+btnLogin.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+  
+  if(currentAccount?.pin === Number(inputLoginPin.value)){
+    // mensaje de bienvenida
+    labelWelcome.textContent = `Bienvenido/a, ${currentAccount.owner.split(' ')[0]}`;
+    containerApp.style.opacity = 100;
+
+    //ocultar la info del login
+    inputLoginUsername.value = inputLoginPin.value = "";
+    inputClosePin.blur();
+
+    // mostrar los movimientos, el balance y el resumen
+    displayMovements(currentAccount.movements);
+    calcPrintBalance(currentAccount.movements);
+    calcDisplaySummary(currentAccount);
+  }
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -142,3 +160,4 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
+
