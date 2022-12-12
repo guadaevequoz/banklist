@@ -172,6 +172,23 @@ btnTransfer.addEventListener('click', (e) => {
   }
 })
 
+btnClose.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  if(inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) === currentAccount.pin){
+    const index = accounts.findIndex(acc => acc.username == inputCloseUsername.value);
+
+    // elimino el usuario
+    accounts.splice(index, 1);
+
+    // oculto todo
+    containerApp.style.opacity = 0;
+    inputCloseUsername.value = inputClosePin.value = "";
+  }
+
+  
+})
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
