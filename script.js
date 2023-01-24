@@ -79,6 +79,14 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 // Functions
 
+
+const formatCur = (value, locale, curr) => {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: curr
+  }).format(value);
+}
+
 /**
  * Funcion que permite mostrar los movimientos (array) de un usuario (de ultimos a primeros)
  * @param {*} movements 
@@ -98,11 +106,13 @@ const displayMovements = (acc, sort = false) => {
     const year = date.getFullYear();
     const displayDate = `${day}/${month}/${year}`;
 
+   
+
     const html = `
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
       <div class="movements__date">${displayDate}</div>
-      <div class="movements__value">$${mov.toFixed(2)}</div>
+      <div class="movements__value">${formatCur(mov.toFixed(2), acc.locale, acc.currency)}</div>
     </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -117,7 +127,7 @@ const displayMovements = (acc, sort = false) => {
  */
  const calcPrintBalance = (acc) => {
   acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `$${acc.balance.toFixed(2)}`;
+  labelBalance.textContent = formatCur(acc.balance, acc.locale, acc.currency);
 }
 
 
@@ -126,13 +136,13 @@ const displayMovements = (acc, sort = false) => {
  */
 const calcDisplaySummary = (acc) => {
   const incomes = acc.movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov);
-  labelSumIn.textContent = `$${incomes.toFixed(2)}`;
+  labelSumIn.textContent = formatCur(incomes, acc.locale, acc.currency);
 
   const outcomes = acc.movements.filter(mov => mov < 0).reduce((acc, mov) => acc + mov);
-  labelSumOut.textContent = `$${Math.abs(outcomes).toFixed(2)}`;
+  labelSumOut.textContent = formatCur(Math.abs(outcomes), acc.locale, acc.currency);
 
   const interest = acc.movements.filter(mov => mov > 0).map(mov => mov * acc.interestRate/100).filter(mov => mov >= 1).reduce((acc, mov) => acc + mov);
-  labelSumInterest.textContent = `$${interest.toFixed(2)}`;
+  labelSumInterest.textContent = formatCur(interest, acc.locale, acc.currency); 
 
 }
 
