@@ -169,10 +169,35 @@ const updateUI = (currentAccount) => {
   calcDisplaySummary(currentAccount);
 }
 
+
+const startLogOutTimer = () => {
+
+  const tick = () => {
+    const min = String(Math.trunc(time / 60)).padStart(2, '0');
+    const sec = String(time % 60).padStart(2, '0');
+    labelTimer.textContent = `${min}:${sec}`;
+    
+    if(time === 0){
+      clearInterval(timer);
+      labelWelcome.textContent = `Inicia sesión para comenzar`;
+      containerApp.style.opacity = 0;
+    }
+
+    time--;
+  }
+
+  let time = 300;
+
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
+
 ////////////////////////////////////
 // Event handlers
 
-let currentAccount;
+
+let currentAccount, timer;
 
 
 btnLogin.addEventListener('click', (e) => {
@@ -198,6 +223,9 @@ btnLogin.addEventListener('click', (e) => {
     inputLoginUsername.value = inputLoginPin.value = "";
     inputClosePin.blur();
 
+    if(timer) clearInterval(timer);
+    timer = startLogOutTimer();
+
     // mostrar los movimientos, el balance y el resumen
     updateUI(currentAccount);
   }
@@ -220,6 +248,9 @@ btnTransfer.addEventListener('click', (e) => {
     //ocultar la info
     inputTransferAmount.value = inputTransferTo.value = "";
     inputTransferTo.blur();
+
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -228,11 +259,15 @@ btnLoan.addEventListener('click', (e) => {
   const amount = Math.floor(inputLoanAmount.value);
 
   if(amount > 0 && currentAccount.movements.some(m => m >= amount / 10 )){
-    currentAccount.movements.push(amount);
-    currentAccount.movementsDates.push(new Date().toISOString());
-    updateUI(currentAccount);
-    inputLoanAmount.value = '';
+    setTimeout(() => {
+      currentAccount.movements.push(amount);
+      currentAccount.movementsDates.push(new Date().toISOString());
+      updateUI(currentAccount);
+      clearInterval(timer);
+      timer = startLogOutTimer();
+    }, 2500)
   }
+  inputLoanAmount.value = '';
 });
 
 btnClose.addEventListener('click', (e) => {
@@ -256,6 +291,4 @@ btnSort.addEventListener('click', (e) => {
   displayMovements(currentAccount.movements, !sorted);
   sorted = !sorted;
 });
-
-const randomInt = (min, max) =>  Math.trunc(Math.random() * (max - min) + 1);
 
