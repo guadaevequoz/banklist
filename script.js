@@ -18,9 +18,9 @@ const account1 = {
     '2020-01-28T09:15:04.904Z',
     '2020-04-01T10:17:24.185Z',
     '2020-05-08T14:11:59.604Z',
-    '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2023-01-10T17:01:17.194Z',
+    '2023-01-11T23:36:17.929Z',
+    '2023-01-17T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -79,6 +79,23 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 // Functions
 
+const formatMovementDate = function(locale, date) {
+  const calcDaysPassed = (d1, d2) => Math.round(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+
+  if(daysPassed === 0) return 'Hoy';
+  if(daysPassed === 1) return 'Ayer';
+  if(daysPassed <= 7) return `Hace ${daysPassed} días`;
+  
+  // const day = `${date.getDate()}`.padStart(2,0);
+  // const month = `${date.getMonth() +1}`.padStart(2,0);
+  // const year = date.getFullYear();
+  // return `${day}/${month}/${year}`;
+  return new Intl.DateTimeFormat(locale).format(date);
+
+}
+
 /**
  * Funcion que permite mostrar los movimientos (array) de un usuario (de ultimos a primeros)
  * @param {*} movements 
@@ -93,10 +110,7 @@ const displayMovements = (acc, sort = false) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     const date = new Date(acc.movementsDates[i]);
-    const day = `${date.getDate()}`.padStart(2,0);
-    const month = `${date.getMonth() +1}`.padStart(2,0);
-    const year = date.getFullYear();
-    const displayDate = `${day}/${month}/${year}`;
+    const displayDate = formatMovementDate(acc.locale, date);
 
     const html = `
     <div class="movements__row">
@@ -164,6 +178,12 @@ const updateUI = (currentAccount) => {
 
 let currentAccount;
 
+/////
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
+
+
 
 btnLogin.addEventListener('click', (e) => {
   e.preventDefault();
@@ -177,12 +197,17 @@ btnLogin.addEventListener('click', (e) => {
 
     // mostrar la fecha
     const now = new Date();
-    const day = `${now.getDate()}`.padStart(2,0);
-    const month = `${now.getMonth() +1}`.padStart(2,0);
-    const year = now.getFullYear();
-    const hour = `${now.getHours()}`.padStart(2,0);
-    const min = `${now.getMinutes()}`.padStart(2,0);
-    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+    const options = {
+      hour: 'numeric',
+      minute:'numeric',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      //weekday: 'long'
+    };
+
+    //const locale = navigator.language;
+    labelDate.textContent = new Intl.DateTimeFormat(currentAccount.locale, options).format(now);
 
     //ocultar la info del login
     inputLoginUsername.value = inputLoginPin.value = "";
